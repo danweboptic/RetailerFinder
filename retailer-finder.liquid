@@ -59,11 +59,6 @@
     // Store settings as a global object to access from JS file
     window.retailerFinderSettings = {
       apiUrl: '{{ api_endpoint }}',
-      loadingText: '{{ loading_text }}',
-      noResultsText: '{{ no_results_text }}',
-      errorLoadingText: '{{ error_loading_text }}',
-      locationErrorText: '{{ location_error_text }}',
-      geolocationNotSupportedText: '{{ geolocation_not_supported_text }}',
       defaultLat: {{ section.settings.default_latitude | default: 51.32946017198823 }},
       defaultLng: {{ section.settings.default_longitude | default: -0.590516176321099 }},
       distanceUnit: '{{ section.settings.distance_unit }}'
