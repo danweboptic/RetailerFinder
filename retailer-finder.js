@@ -1,7 +1,7 @@
 /**
- * Enhanced Store Locator Script
+ * Store Locator Script
  * @author: danweboptic
- * @lastModified: 2025-03-26 14:06:22 UTC
+ * @lastModified: 2025-03-26 14:30:51 UTC
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const DISTANCE_MULTIPLIER = DISTANCE_UNIT === 'kilometers' ? 1.60934 : 1;
   const DISTANCE_LABEL = DISTANCE_UNIT === 'kilometers' ? 'km' : 'miles';
   const MAX_RECENT_SEARCHES = 5;
+  const INITIAL_RESULTS_LIMIT = 10; // Show top 10 closest initially
 
   // Text strings
   const LOADING_TEXT = settings.loadingText || 'Loading retailers...';
@@ -43,11 +44,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const retailerList = document.getElementById('retailer-list');
   const countElement = document.getElementById('count');
   const mapElement = document.getElementById('retailer-map');
+  const showMoreBtn = document.createElement('button');
+  showMoreBtn.className = 'show-more-btn';
+  showMoreBtn.textContent = 'Show More Results';
+  showMoreBtn.style.display = 'none';
+  retailerList.parentNode.insertBefore(showMoreBtn, retailerList.nextSibling);
 
   // Google Maps variables
   let map;
   let markers = [];
-  let infoWindow;
   let bounds;
   let geocoder;
   let clusterer;
@@ -55,9 +60,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Data storage
   let retailers = [];
-  let allRetailers = []; // Store all retailers
+  let allRetailers = [];
   let userPosition = null;
   let userMarker = null;
+  let currentResultsLimit = INITIAL_RESULTS_LIMIT;
 
   // Initialize app
   initMap();
@@ -82,6 +88,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  showMoreBtn.addEventListener('click', function() {
+    currentResultsLimit += INITIAL_RESULTS_LIMIT;
+    updateRetailers();
+  });
+
   function initAutocomplete() {
     try {
       searchBox = new google.maps.places.Autocomplete(searchInput, {
@@ -91,9 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       searchBox.addListener('place_changed', function() {
         const place = searchBox.getPlace();
-        if (!place.geometry) {
-          return;
-        }
+        if (!place.geometry) return;
         handlePlaceSelection(place);
       });
     } catch (error) {
@@ -119,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ]
       });
 
-      infoWindow = new google.maps.InfoWindow();
       geocoder = new google.maps.Geocoder();
       bounds = new google.maps.LatLngBounds();
 
@@ -131,12 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
           radius: 60
         })
       });
-
-      // Add map event listeners for updating visible retailers
-      map.addListener('idle', debounce(() => {
-        updateVisibleRetailers();
-        saveMapState();
-      }, 250));
 
       const savedLat = localStorage.getItem('retailer_finder_lat');
       const savedLng = localStorage.getItem('retailer_finder_lng');
@@ -180,11 +182,6 @@ document.addEventListener('DOMContentLoaded', function() {
       zIndex: 1000,
       title: 'Your Location'
     });
-
-    userMarker.addListener('click', function() {
-      infoWindow.setContent('<div class="map-info-window"><strong>Your Location</strong></div>');
-      infoWindow.open(map, userMarker);
-    });
   }
 
   function getUserLocation(silent = false) {
@@ -204,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
           localStorage.setItem('retailer_finder_lng', userPosition.lng);
 
           map.setCenter(userPosition);
+          map.setZoom(11);
           addUserMarker(userPosition);
           fetchAllRetailers();
         },
@@ -232,10 +230,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     saveRecentSearch(place.formatted_address, userPosition);
     map.setCenter(userPosition);
+    map.setZoom(11);
     addUserMarker(userPosition);
 
     if (allRetailers.length > 0) {
-      updateVisibleRetailers();
+      currentResultsLimit = INITIAL_RESULTS_LIMIT;
+      updateRetailers();
     } else {
       fetchAllRetailers();
     }
@@ -256,10 +256,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         saveRecentSearch(query, userPosition);
         map.setCenter(userPosition);
+        map.setZoom(11);
         addUserMarker(userPosition);
 
         if (allRetailers.length > 0) {
-          updateVisibleRetailers();
+          currentResultsLimit = INITIAL_RESULTS_LIMIT;
+          updateRetailers();
         } else {
           fetchAllRetailers();
         }
@@ -285,47 +287,41 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      updateVisibleRetailers();
+      currentResultsLimit = INITIAL_RESULTS_LIMIT;
+      updateRetailers();
     } catch (error) {
       console.error('Error fetching retailers:', error);
       retailerList.innerHTML = `<div class="retailer-finder__error">${ERROR_LOADING_TEXT}</div>`;
     }
   }
 
-  function updateVisibleRetailers() {
-    const currentBounds = map.getBounds();
-    if (!currentBounds) return;
+  function updateRetailers() {
+    if (!userPosition) {
+      retailers = allRetailers.slice(0, currentResultsLimit);
+    } else {
+      // Calculate distances and sort
+      retailers = allRetailers.map(retailer => ({
+        ...retailer,
+        distance: calculateDistance(
+          userPosition.lat,
+          userPosition.lng,
+          parseFloat(retailer.latitude),
+          parseFloat(retailer.longitude)
+        ) * DISTANCE_MULTIPLIER
+      }))
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, currentResultsLimit);
+    }
 
-    retailers = allRetailers.filter(retailer => {
-      const latLng = new google.maps.LatLng(
-        parseFloat(retailer.latitude),
-        parseFloat(retailer.longitude)
-      );
-      return currentBounds.contains(latLng);
-    });
-
-    updateRetailersDistance();
     displayRetailers();
     updateMarkers();
 
     if (countElement) {
       countElement.textContent = retailers.length;
     }
-  }
 
-  function updateRetailersDistance() {
-    if (!userPosition) return;
-
-    retailers.forEach(retailer => {
-      retailer.distance = calculateDistance(
-        userPosition.lat,
-        userPosition.lng,
-        parseFloat(retailer.latitude),
-        parseFloat(retailer.longitude)
-      ) * DISTANCE_MULTIPLIER;
-    });
-
-    retailers.sort((a, b) => a.distance - b.distance);
+    // Show/hide "Show More" button
+    showMoreBtn.style.display = currentResultsLimit < allRetailers.length ? 'block' : 'none';
   }
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -397,9 +393,6 @@ document.addEventListener('DOMContentLoaded', function() {
       bounds.extend(position);
 
       marker.addListener('click', () => {
-        infoWindow.close();
-        infoWindow.setContent(createInfoWindowContent(retailer));
-        infoWindow.open(map, marker);
         highlightListItem(index);
       });
 
@@ -409,6 +402,11 @@ document.addEventListener('DOMContentLoaded', function() {
     markers = newMarkers;
     clusterer.clearMarkers();
     clusterer.addMarkers(markers);
+
+    // Only fit bounds if we have markers
+    if (markers.length > 0) {
+      map.fitBounds(bounds);
+    }
   }
 
   function clearMarkers() {
@@ -416,33 +414,11 @@ document.addEventListener('DOMContentLoaded', function() {
     markers = [];
   }
 
-  function createInfoWindowContent(retailer) {
-    const distanceText = retailer.distance
-      ? `<div class="map-info-distance">${retailer.distance.toFixed(1)} ${DISTANCE_LABEL} away</div>`
-      : '';
-
-    return `
-      <div class="map-info-window">
-        <div class="map-info-title">${retailer.name}</div>
-        <div class="map-info-address">${retailer.address}, ${retailer.city}, ${retailer.postcode}</div>
-        ${retailer.phone ? `<div class="map-info-contact">📞 <a href="tel:${retailer.phone}">${retailer.phone}</a></div>` : ''}
-        ${retailer.website ? `<div class="map-info-contact">🌐 <a href="${retailer.website}" target="_blank" rel="noopener">Visit Website</a></div>` : ''}
-        ${distanceText}
-      </div>
-    `;
-  }
-
   function highlightRetailer(index) {
-    const retailer = retailers[index];
     const marker = markers[index];
-
     if (marker) {
       map.panTo(marker.getPosition());
-      infoWindow.close();
-      infoWindow.setContent(createInfoWindowContent(retailer));
-      infoWindow.open(map, marker);
     }
-
     highlightListItem(index);
   }
 
