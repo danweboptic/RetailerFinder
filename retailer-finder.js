@@ -1,7 +1,7 @@
 /**
  * Store Locator Script
  * @author: danweboptic
- * @lastModified: 2025-03-26 15:57:13 UTC
+ * @lastModified: 2025-03-26 16:18:41 UTC
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -284,7 +284,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!userPosition) {
       retailers = [...allRetailers];
     } else {
-      // Calculate distances and sort
       retailers = allRetailers.map(retailer => ({
         ...retailer,
         distance: calculateDistance(
@@ -370,7 +369,6 @@ document.addEventListener('DOMContentLoaded', function() {
         lng: parseFloat(retailer.longitude)
       };
 
-      // Create custom marker with number label
       const marker = new google.maps.Marker({
         position: position,
         map: map,
@@ -388,7 +386,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
       marker.addListener('click', () => {
         highlightListItem(index);
-        handleMarkerClick(marker, index);
+        map.setCenter(marker.getPosition());
+        if (map.getZoom() < 13) {
+          map.setZoom(13);
+        }
       });
 
       return marker;
@@ -398,77 +399,9 @@ document.addEventListener('DOMContentLoaded', function() {
     clusterer.clearMarkers();
     clusterer.addMarkers(markers);
 
-    // Only fit bounds if we have markers
     if (markers.length > 0) {
       map.fitBounds(bounds);
     }
-  }
-
-  function handleMarkerClick(marker, index) {
-    const position = marker.getPosition();
-    const targetPoint = offsetPointForList(position);
-    
-    map.panTo(targetPoint);
-    
-    const currentZoom = map.getZoom();
-    if (currentZoom < 13) {
-      map.setZoom(13);
-    }
-    
-    // Check if marker is in a cluster
-    if (clusterer) {
-      try {
-        // Get current zoom level
-        const zoom = map.getZoom();
-        // If we're zoomed out, zoom in to make sure the marker is visible
-        if (zoom < 16) {
-          const clusters = clusterer.algorithm.clusters;
-          const hasCluster = clusters.some(cluster => 
-            cluster.markers.length > 1 && 
-            cluster.markers.some(m => m === marker)
-          );
-          
-          if (hasCluster) {
-            map.setZoom(16);
-            // After zooming, pan to the marker again to ensure it's centered
-            setTimeout(() => {
-              map.panTo(targetPoint);
-            }, 100);
-          }
-        }
-      } catch (error) {
-        console.warn('Cluster check failed:', error);
-      }
-    }
-  }
-
-  function offsetPointForList(position) {
-    const mapWidth = mapElement.offsetWidth;
-    const listWidth = document.querySelector('.retailer-finder__sidebar').offsetWidth;
-    const offsetRatio = (listWidth / 2) / mapWidth;
-    
-    const bounds = map.getBounds();
-    if (!bounds) return position;
-    
-    const lngSpan = bounds.getNorthEast().lng() - bounds.getSouthWest().lng();
-    
-    return new google.maps.LatLng(
-      position.lat(),
-      position.lng() + (lngSpan * offsetRatio)
-    );
-  }
-
-  function clearMarkers() {
-    markers.forEach(marker => marker.setMap(null));
-    markers = [];
-  }
-
-  function highlightRetailer(index) {
-    const marker = markers[index];
-    if (marker) {
-      map.panTo(marker.getPosition());
-    }
-    highlightListItem(index);
   }
 
   function highlightListItem(index) {
@@ -479,42 +412,50 @@ document.addEventListener('DOMContentLoaded', function() {
     if (activeItem) {
       activeItem.classList.add('active');
       
-      // Get scroll parent
-      const scrollParent = retailerList;
-      
-      // Get positions
-      const parentRect = scrollParent.getBoundingClientRect();
+      const containerRect = retailerList.getBoundingClientRect();
       const itemRect = activeItem.getBoundingClientRect();
       
       // Calculate if item is in view
-      const itemTop = itemRect.top - parentRect.top;
-      const itemBottom = itemRect.bottom - parentRect.top;
+      const itemTop = itemRect.top - containerRect.top;
+      const itemBottom = itemRect.bottom - containerRect.top;
       
       // Define the visible area with padding
       const visibleAreaPadding = 20;
       const visibleAreaTop = visibleAreaPadding;
-      const visibleAreaBottom = parentRect.height - visibleAreaPadding;
+      const visibleAreaBottom = containerRect.height - visibleAreaPadding;
       
       // Check if item needs scrolling
       if (itemTop < visibleAreaTop || itemBottom > visibleAreaBottom) {
-        // Calculate new scroll position
         let newScrollTop;
         
         if (itemTop < visibleAreaTop) {
-          // Item is above visible area - scroll up
-          newScrollTop = scrollParent.scrollTop + (itemTop - visibleAreaTop);
+          newScrollTop = retailerList.scrollTop + (itemTop - visibleAreaTop);
         } else {
-          // Item is below visible area - scroll down
-          newScrollTop = scrollParent.scrollTop + (itemBottom - visibleAreaBottom);
+          newScrollTop = retailerList.scrollTop + (itemBottom - visibleAreaBottom);
         }
         
-        // Apply scroll with smooth behavior
-        scrollParent.scrollTo({
+        retailerList.scrollTo({
           top: Math.max(0, newScrollTop),
           behavior: 'smooth'
         });
       }
     }
+  }
+
+  function clearMarkers() {
+    markers.forEach(marker => marker.setMap(null));
+    markers = [];
+  }
+
+  function highlightRetailer(index) {
+    const marker = markers[index];
+    if (marker) {
+      map.setCenter(marker.getPosition());
+      if (map.getZoom() < 13) {
+        map.setZoom(13);
+      }
+    }
+    highlightListItem(index);
   }
 
   function saveMapState() {
