@@ -217,12 +217,11 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     saveRecentSearch(place.formatted_address, userPosition);
-    map.setCenter(userPosition);
-    map.setZoom(11);
     addUserMarker(userPosition);
 
     if (allRetailers.length > 0) {
       updateRetailers();
+      fitMapToSearchResults();
     } else {
       fetchAllRetailers();
     }
@@ -242,12 +241,11 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         saveRecentSearch(query, userPosition);
-        map.setCenter(userPosition);
-        map.setZoom(11);
         addUserMarker(userPosition);
 
         if (allRetailers.length > 0) {
           updateRetailers();
+          fitMapToSearchResults();
         } else {
           fetchAllRetailers();
         }
@@ -274,10 +272,45 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       updateRetailers();
+      if (userPosition) {
+        fitMapToSearchResults();
+      }
     } catch (error) {
       console.error('Error fetching retailers:', error);
       retailerList.innerHTML = `<div class="retailer-finder__error">${ERROR_LOADING_TEXT}</div>`;
     }
+  }
+
+  function fitMapToSearchResults() {
+    if (!userPosition || retailers.length === 0) return;
+
+    // Create new bounds
+    const searchBounds = new google.maps.LatLngBounds();
+
+    // Add user position
+    searchBounds.extend(new google.maps.LatLng(userPosition.lat, userPosition.lng));
+
+    // Add nearest retailer position
+    const nearestRetailer = retailers[0]; // Already sorted by distance in updateRetailers
+    searchBounds.extend(new google.maps.LatLng(
+      parseFloat(nearestRetailer.latitude),
+      parseFloat(nearestRetailer.longitude)
+    ));
+
+    // Fit map to these bounds
+    map.fitBounds(searchBounds);
+
+    // Add a small padding to the bounds
+    map.setCenter(searchBounds.getCenter());
+
+    // If the zoom is too far out, set a minimum zoom level
+    google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+      if (map.getZoom() > 15) {
+        map.setZoom(15); // Maximum zoom level
+      } else if (map.getZoom() < 10) {
+        map.setZoom(10); // Minimum zoom level
+      }
+    });
   }
 
   function updateRetailers() {
