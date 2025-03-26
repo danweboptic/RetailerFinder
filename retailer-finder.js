@@ -1,7 +1,7 @@
 /**
  * Store Locator Script
  * @author: danweboptic
- * @lastModified: 2025-03-26 14:49:29 UTC
+ * @lastModified: 2025-03-26 15:57:13 UTC
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -388,6 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       marker.addListener('click', () => {
         highlightListItem(index);
+        handleMarkerClick(marker, index);
       });
 
       return marker;
@@ -401,6 +402,60 @@ document.addEventListener('DOMContentLoaded', function() {
     if (markers.length > 0) {
       map.fitBounds(bounds);
     }
+  }
+
+  function handleMarkerClick(marker, index) {
+    const position = marker.getPosition();
+    const targetPoint = offsetPointForList(position);
+    
+    map.panTo(targetPoint);
+    
+    const currentZoom = map.getZoom();
+    if (currentZoom < 13) {
+      map.setZoom(13);
+    }
+    
+    // Check if marker is in a cluster
+    if (clusterer) {
+      try {
+        // Get current zoom level
+        const zoom = map.getZoom();
+        // If we're zoomed out, zoom in to make sure the marker is visible
+        if (zoom < 16) {
+          const clusters = clusterer.algorithm.clusters;
+          const hasCluster = clusters.some(cluster => 
+            cluster.markers.length > 1 && 
+            cluster.markers.some(m => m === marker)
+          );
+          
+          if (hasCluster) {
+            map.setZoom(16);
+            // After zooming, pan to the marker again to ensure it's centered
+            setTimeout(() => {
+              map.panTo(targetPoint);
+            }, 100);
+          }
+        }
+      } catch (error) {
+        console.warn('Cluster check failed:', error);
+      }
+    }
+  }
+
+  function offsetPointForList(position) {
+    const mapWidth = mapElement.offsetWidth;
+    const listWidth = document.querySelector('.retailer-finder__sidebar').offsetWidth;
+    const offsetRatio = (listWidth / 2) / mapWidth;
+    
+    const bounds = map.getBounds();
+    if (!bounds) return position;
+    
+    const lngSpan = bounds.getNorthEast().lng() - bounds.getSouthWest().lng();
+    
+    return new google.maps.LatLng(
+      position.lat(),
+      position.lng() + (lngSpan * offsetRatio)
+    );
   }
 
   function clearMarkers() {
@@ -419,33 +474,46 @@ document.addEventListener('DOMContentLoaded', function() {
   function highlightListItem(index) {
     const items = retailerList.getElementsByClassName('retailer-item');
     Array.from(items).forEach(item => item.classList.remove('active'));
-
+    
     const activeItem = retailerList.querySelector(`[data-index="${index}"]`);
     if (activeItem) {
       activeItem.classList.add('active');
-
-      // Get the container and item positions
-      const container = retailerList;
-      const item = activeItem;
-
-      // Calculate positions
-      const containerHeight = container.clientHeight;
-      const itemHeight = item.clientHeight;
-      const itemTop = item.offsetTop;
-      const scrollTop = container.scrollTop;
-      const scrollBottom = scrollTop + containerHeight;
-
-      // Calculate the ideal scroll position (center the item if possible)
-      let targetScrollTop = itemTop - (containerHeight / 2) + (itemHeight / 2);
-
-      // Constrain the scroll position to valid bounds
-      targetScrollTop = Math.max(0, Math.min(targetScrollTop, container.scrollHeight - containerHeight));
-
-      // Smooth scroll to position
-      container.scrollTo({
-        top: targetScrollTop,
-        behavior: 'smooth'
-      });
+      
+      // Get scroll parent
+      const scrollParent = retailerList;
+      
+      // Get positions
+      const parentRect = scrollParent.getBoundingClientRect();
+      const itemRect = activeItem.getBoundingClientRect();
+      
+      // Calculate if item is in view
+      const itemTop = itemRect.top - parentRect.top;
+      const itemBottom = itemRect.bottom - parentRect.top;
+      
+      // Define the visible area with padding
+      const visibleAreaPadding = 20;
+      const visibleAreaTop = visibleAreaPadding;
+      const visibleAreaBottom = parentRect.height - visibleAreaPadding;
+      
+      // Check if item needs scrolling
+      if (itemTop < visibleAreaTop || itemBottom > visibleAreaBottom) {
+        // Calculate new scroll position
+        let newScrollTop;
+        
+        if (itemTop < visibleAreaTop) {
+          // Item is above visible area - scroll up
+          newScrollTop = scrollParent.scrollTop + (itemTop - visibleAreaTop);
+        } else {
+          // Item is below visible area - scroll down
+          newScrollTop = scrollParent.scrollTop + (itemBottom - visibleAreaBottom);
+        }
+        
+        // Apply scroll with smooth behavior
+        scrollParent.scrollTo({
+          top: Math.max(0, newScrollTop),
+          behavior: 'smooth'
+        });
+      }
     }
   }
 
