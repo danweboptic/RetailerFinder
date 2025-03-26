@@ -1,7 +1,7 @@
 /**
  * Store Locator Script
  * @author: danweboptic
- * @lastModified: 2025-03-26 14:30:51 UTC
+ * @lastModified: 2025-03-26 14:49:29 UTC
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const DISTANCE_MULTIPLIER = DISTANCE_UNIT === 'kilometers' ? 1.60934 : 1;
   const DISTANCE_LABEL = DISTANCE_UNIT === 'kilometers' ? 'km' : 'miles';
   const MAX_RECENT_SEARCHES = 5;
-  const INITIAL_RESULTS_LIMIT = 10; // Show top 10 closest initially
 
   // Text strings
   const LOADING_TEXT = settings.loadingText || 'Loading retailers...';
@@ -44,11 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const retailerList = document.getElementById('retailer-list');
   const countElement = document.getElementById('count');
   const mapElement = document.getElementById('retailer-map');
-  const showMoreBtn = document.createElement('button');
-  showMoreBtn.className = 'show-more-btn';
-  showMoreBtn.textContent = 'Show More Results';
-  showMoreBtn.style.display = 'none';
-  retailerList.parentNode.insertBefore(showMoreBtn, retailerList.nextSibling);
 
   // Google Maps variables
   let map;
@@ -63,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
   let allRetailers = [];
   let userPosition = null;
   let userMarker = null;
-  let currentResultsLimit = INITIAL_RESULTS_LIMIT;
 
   // Initialize app
   initMap();
@@ -88,16 +81,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  showMoreBtn.addEventListener('click', function() {
-    currentResultsLimit += INITIAL_RESULTS_LIMIT;
-    updateRetailers();
-  });
-
   function initAutocomplete() {
     try {
       searchBox = new google.maps.places.Autocomplete(searchInput, {
         types: ['geocode'],
-        componentRestrictions: { country: settings.countryCode || 'US' }
+        componentRestrictions: { country: settings.countryCode || 'GB' }
       });
 
       searchBox.addListener('place_changed', function() {
@@ -234,7 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
     addUserMarker(userPosition);
 
     if (allRetailers.length > 0) {
-      currentResultsLimit = INITIAL_RESULTS_LIMIT;
       updateRetailers();
     } else {
       fetchAllRetailers();
@@ -260,7 +247,6 @@ document.addEventListener('DOMContentLoaded', function() {
         addUserMarker(userPosition);
 
         if (allRetailers.length > 0) {
-          currentResultsLimit = INITIAL_RESULTS_LIMIT;
           updateRetailers();
         } else {
           fetchAllRetailers();
@@ -287,7 +273,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      currentResultsLimit = INITIAL_RESULTS_LIMIT;
       updateRetailers();
     } catch (error) {
       console.error('Error fetching retailers:', error);
@@ -297,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function updateRetailers() {
     if (!userPosition) {
-      retailers = allRetailers.slice(0, currentResultsLimit);
+      retailers = [...allRetailers];
     } else {
       // Calculate distances and sort
       retailers = allRetailers.map(retailer => ({
@@ -309,8 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
           parseFloat(retailer.longitude)
         ) * DISTANCE_MULTIPLIER
       }))
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, currentResultsLimit);
+      .sort((a, b) => a.distance - b.distance);
     }
 
     displayRetailers();
@@ -319,9 +303,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (countElement) {
       countElement.textContent = retailers.length;
     }
-
-    // Show/hide "Show More" button
-    showMoreBtn.style.display = currentResultsLimit < allRetailers.length ? 'block' : 'none';
   }
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -353,16 +334,21 @@ document.addEventListener('DOMContentLoaded', function() {
       retailerElement.className = 'retailer-item';
       retailerElement.dataset.index = index;
 
+      const numberLabel = `<div class="retailer-number">${index + 1}</div>`;
+
       const distanceHtml = retailer.distance
         ? `<div class="retailer-distance">${retailer.distance.toFixed(1)} ${DISTANCE_LABEL} away</div>`
         : '';
 
       retailerElement.innerHTML = `
-        <div class="retailer-name">${retailer.name}</div>
-        <div class="retailer-address">${retailer.address}, ${retailer.city}, ${retailer.postcode}</div>
-        ${retailer.phone ? `<div class="retailer-phone">${retailer.phone}</div>` : ''}
-        ${retailer.website ? `<div class="retailer-website"><a href="${retailer.website}" target="_blank" rel="noopener">Visit Website</a></div>` : ''}
-        ${distanceHtml}
+        ${numberLabel}
+        <div class="retailer-details">
+          <div class="retailer-name">${retailer.name}</div>
+          <div class="retailer-address">${retailer.address}, ${retailer.city}, ${retailer.postcode}</div>
+          ${retailer.phone ? `<div class="retailer-phone">${retailer.phone}</div>` : ''}
+          ${retailer.website ? `<div class="retailer-website"><a href="${retailer.website}" target="_blank" rel="noopener">Visit Website</a></div>` : ''}
+          ${distanceHtml}
+        </div>
       `;
 
       retailerElement.addEventListener('click', () => highlightRetailer(index));
@@ -384,8 +370,16 @@ document.addEventListener('DOMContentLoaded', function() {
         lng: parseFloat(retailer.longitude)
       };
 
+      // Create custom marker with number label
       const marker = new google.maps.Marker({
         position: position,
+        map: map,
+        label: {
+          text: (index + 1).toString(),
+          color: '#FFFFFF',
+          fontSize: '14px',
+          fontWeight: 'bold'
+        },
         title: retailer.name,
         optimized: true
       });

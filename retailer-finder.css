@@ -391,29 +391,34 @@
     margin-top: 2px;
   }
 }
-/* Add to your existing CSS file */
-
-.retailer-finder__search-area {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  background-color: white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
+.retailer-item {
+  display: flex;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.retailer-finder__search-area:hover {
-  background-color: #f8f8f8;
+.retailer-number {
+  background: #4285F4;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  font-weight: bold;
 }
 
-.retailer-finder__search-area.hidden {
-  display: none;
+.retailer-details {
+  flex: 1;
+}
+
+.retailer-item:hover {
+  background: #f5f5f5;
+}
+
+.retailer-item.active {
+  background: #e3f2fd;
 }
