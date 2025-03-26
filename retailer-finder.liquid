@@ -20,35 +20,22 @@
 -%}
 
 <div class="retailer-finder">
-  <div class="retailer-finder__header">
-    <div class="page-width">
-      <h1 class="retailer-finder__title">{{ title }}</h1>
-      
-      {% if section.settings.subtitle != blank %}
-        <div class="retailer-finder__subtitle">{{ section.settings.subtitle }}</div>
-      {% endif %}
-      
-      <div class="retailer-finder__search-container">
-        <input type="text" id="retailer-search" class="retailer-finder__search-input" placeholder="{{ search_placeholder }}">
-        <button id="search-btn" class="retailer-finder__button retailer-finder__search-btn">{{ search_button_text }}</button>
-        <button id="use-my-location-btn" class="retailer-finder__button retailer-finder__location-btn">{{ location_button_text }}</button>
+  <div class="retailer-finder__sidebar">
+    <div class="retailer-finder__search">
+      <input type="text" id="retailer-search" class="retailer-finder__search-input" placeholder="Enter location or postcode">
+      <button id="search-btn" class="retailer-finder__search-btn">Search</button>
+      <button id="use-my-location-btn" class="retailer-finder__location-btn">Use my location</button>
+    </div>
+
+    <div class="retailer-finder__list-container">
+      <div class="retailer-finder__count">
+        Found <span id="count">0</span> retailers
       </div>
+      <div id="retailer-list" class="retailer-finder__list"></div>
     </div>
   </div>
-  
-  <div class="retailer-finder__content-wrapper">
-    <div class="page-width retailer-finder__content">
-      <div id="retailer-map" class="retailer-finder__map"></div>
-      
-      <div class="retailer-finder__list-container">
-        <h2 class="retailer-finder__list-title">{{ list_title }}</h2>
-        <div id="retailer-count" class="retailer-finder__count">{{ found_text }} <span id="count">0</span> {{ retailers_text }}</div>
-        <div id="retailer-list" class="retailer-finder__list">
-          <div class="retailer-finder__loading">{{ loading_text }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
+
+  <div id="retailer-map" class="retailer-finder__map"></div>
 </div>
 
 
