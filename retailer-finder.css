@@ -1,447 +1,218 @@
-.retailer-finder-section {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
+/**
+ * Retailer Finder Styles
+ * @author: danweboptic
+ * @lastModified: 2025-03-26 15:07:21
+ */
 
 .retailer-finder {
-  width: 100%;
-  font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif);
-}
-
-.retailer-finder__header {
-  background-color: var(--background-color, #f8f8f8);
-  padding: 40px 0;
-  width: 100%;
-  margin-bottom: 0;
-}
-
-.retailer-finder__title {
-  text-align: center;
-  margin-bottom: 15px;
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--color-title, #333);
-}
-
-.retailer-finder__subtitle {
-  text-align: center;
-  margin-bottom: 30px;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--color-text, #555);
-}
-
-.retailer-finder__search-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 0;
-  justify-content: center;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  gap: 20px;
+  height: 600px;
+  margin: 20px 0;
+}
+
+/* Sidebar */
+.retailer-finder__sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  min-width: 300px;
+  background: #ffffff;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Search Area */
+.retailer-finder__search {
+  padding: 15px;
+  border-bottom: 1px solid #e1e4e8;
 }
 
 .retailer-finder__search-input {
-  flex: 1;
-  min-width: 250px;
-  padding: 14px 20px;
-  border: 1px solid var(--color-border, #ddd);
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 1px solid #e1e4e8;
   border-radius: 4px;
-  font-size: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  font-size: 14px;
 }
 
-.retailer-finder__button {
-  padding: 14px 20px;
-  background-color: var(--button-color, #4CAF50);
-  color: var(--button-text-color, #ffffff);
+.retailer-finder__search-btn,
+.retailer-finder__location-btn {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
   border: none;
   border-radius: 4px;
+  background: #4285F4;
+  color: white;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 14px;
+  transition: background-color 0.2s;
 }
 
-.retailer-finder__button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  background-color: var(--button-hover-color, #45a049);
+.retailer-finder__location-btn {
+  background: #34A853;
 }
 
-.retailer-finder__content-wrapper {
-  width: 100%;
-  padding: 40px 0;
+.retailer-finder__search-btn:hover {
+  background: #3367D6;
 }
 
-.retailer-finder__content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
+.retailer-finder__location-btn:hover {
+  background: #2E8B47;
 }
 
-.retailer-finder__map {
-  flex: 2;
-  height: 600px;
-  min-width: 300px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
+/* List Container */
 .retailer-finder__list-container {
   flex: 1;
-  min-width: 300px;
-  max-width: 400px;
-}
-
-.retailer-finder__list-title {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-title, #333);
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Important for Firefox */
 }
 
 .retailer-finder__count {
-  margin-bottom: 15px;
-  color: var(--color-text-subdued, #666);
-  font-size: 16px;
+  padding: 10px 15px;
+  background: #f6f8fa;
+  border-bottom: 1px solid #e1e4e8;
+  font-size: 14px;
+  color: #586069;
 }
 
 .retailer-finder__list {
-  max-height: 530px;
+  flex: 1;
   overflow-y: auto;
-  padding-right: 10px;
+  overflow-x: hidden;
+  padding: 10px;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-}
-
-.retailer-finder__list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.retailer-finder__list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.retailer-finder__list::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 10px;
-}
-
-.retailer-finder__list::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 .retailer-item {
-  background-color: var(--color-background, #ffffff);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: flex-start;
+  padding: 15px;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  background: white;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid var(--color-border, #eee);
+  transition: all 0.2s ease;
+}
+
+.retailer-item:last-child {
+  margin-bottom: 0;
 }
 
 .retailer-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+  border-color: #4285F4;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .retailer-item.active {
-  background-color: var(--color-background-selected, #f0f9f0);
-  border-left: 4px solid var(--button-color, #4CAF50);
+  border-color: #4285F4;
+  background: #e3f2fd;
+}
+
+.retailer-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 15px;
+  background: #4285F4;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.retailer-details {
+  flex: 1;
+  min-width: 0; /* Important for text truncation */
 }
 
 .retailer-name {
-  font-weight: 700;
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: var(--color-title, #333);
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #24292e;
 }
 
-.retailer-address, .retailer-phone, .retailer-website {
-  margin-bottom: 8px;
-  color: var(--color-text, #555);
-  font-size: 15px;
-  line-height: 1.5;
+.retailer-address {
+  color: #586069;
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 
-.retailer-distance {
-  font-weight: 600;
-  color: var(--button-color, #4CAF50);
-  margin-top: 10px;
-  font-size: 16px;
+.retailer-phone {
+  color: #586069;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.retailer-website {
+  font-size: 14px;
 }
 
 .retailer-website a {
-  color: var(--button-color, #4CAF50);
+  color: #4285F4;
   text-decoration: none;
-  font-weight: 500;
 }
 
 .retailer-website a:hover {
   text-decoration: underline;
 }
 
+.retailer-distance {
+  color: #586069;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Map Container */
+.retailer-finder__map {
+  flex: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e1e4e8;
+}
+
+/* Loading and Error States */
 .retailer-finder__loading,
+.retailer-finder__error,
 .no-results {
+  padding: 20px;
   text-align: center;
-  color: var(--color-text-subdued, #666);
-  padding: 40px 0;
-  font-size: 16px;
+  color: #586069;
 }
 
 .retailer-finder__error {
-  text-align: center;
-  color: var(--color-error, #d82c0d);
-  padding: 30px;
-  border: 1px solid var(--color-error, #d82c0d);
-  border-radius: 4px;
-  background-color: rgba(216, 44, 13, 0.05);
-  margin: 40px auto;
+  color: #cb2431;
 }
 
-/* Google Maps custom info window styling */
-.gm-style .gm-style-iw-c {
-  padding: 16px !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
-}
-
-.gm-style .gm-style-iw-d {
-  overflow: hidden !important;
-}
-
-.map-info-window {
-  font-family: var(--font-body-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif);
-  min-width: 220px;
-}
-
-.map-info-title {
-  font-weight: 700;
-  font-size: 16px;
-  margin-bottom: 8px;
-  color: var(--color-title, #333);
-}
-
-.map-info-address {
-  font-size: 14px;
-  margin-bottom: 8px;
-  color: var(--color-text, #555);
-  line-height: 1.5;
-}
-
-.map-info-contact {
-  font-size: 14px;
-  margin-bottom: 5px;
-  color: var(--color-text, #555);
-}
-
-.map-info-contact a {
-  color: var(--button-color, #4CAF50);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.map-info-contact a:hover {
-  text-decoration: underline;
-}
-
-.map-info-distance {
-  font-weight: 600;
-  color: var(--button-color, #4CAF50);
-  margin-top: 8px;
+/* Marker Label Styles */
+.gm-style .gm-style-iw {
   font-size: 14px;
 }
 
-/* Responsive adjustments */
-@media screen and (max-width: 749px) {
-  .retailer-finder__header {
-    padding: 30px 0;
-  }
-
-  .retailer-finder__content {
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .retailer-finder {
     flex-direction: column;
+    height: auto;
   }
-  
+
+  .retailer-finder__sidebar {
+    width: 100%;
+    height: 400px;
+  }
+
   .retailer-finder__map {
     height: 400px;
-    order: 1;
   }
-  
-  .retailer-finder__list-container {
-    order: 2;
-    max-width: 100%;
-  }
-  
-  .retailer-finder__search-input {
-    flex: 100%;
-  }
-  
-  .retailer-finder__title {
-    font-size: 28px;
-  }
-  
-  .retailer-finder__list-title {
-    font-size: 20px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .retailer-finder__header {
-    padding: 25px 0;
-  }
-  
-  .retailer-finder__map {
-    height: 320px;
-  }
-  
-  .retailer-finder__button {
-    width: 100%;
-  }
-  
-  .retailer-finder__title {
-    font-size: 24px;
-  }
-}
-
-/* CSS variable mapping for the section settings */
-.retailer-finder-section {
-  --background-color: {{ section.settings.background_color }};
-  --button-color: {{ section.settings.button_color }};
-  --button-hover-color: {{ section.settings.button_color | color_darken: 10 }};
-  --button-text-color: {{ section.settings.button_text_color }};
-}
-
-/* Add to your existing CSS */
-.recent-searches {
-  margin-top: 10px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.recent-searches h4 {
-  margin: 0 0 10px 0;
-  font-size: 14px;
-  color: #666;
-}
-
-.recent-searches ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.recent-searches li {
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.recent-searches li:last-child {
-  border-bottom: none;
-}
-
-.recent-searches a {
-  color: #0366d6;
-  text-decoration: none;
-}
-
-.recent-searches a:hover {
-  text-decoration: underline;
-}
-
-.search-time {
-  color: #666;
-  font-size: 12px;
-  margin-left: 10px;
-}
-
-/* Cluster Styles */
-.cluster {
-  color: #fff;
-  font-weight: bold;
-  font-family: Arial, sans-serif;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .recent-searches {
-    margin-top: 5px;
-    padding: 5px;
-  }
-  
-  .recent-searches h4 {
-    font-size: 13px;
-  }
-  
-  .search-time {
-    display: block;
-    margin-left: 0;
-    margin-top: 2px;
-  }
-}
-.retailer-item {
-  display: flex;
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-  cursor: pointer;
-}
-
-.retailer-number {
-  background: #4285F4;
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-  font-weight: bold;
-}
-
-.retailer-details {
-  flex: 1;
-}
-
-.retailer-item:hover {
-  background: #f5f5f5;
-}
-
-.retailer-item.active {
-  background: #e3f2fd;
-}
-
-
-/* For Webkit browsers (Chrome, Safari) */
-#retailer-list {
-  overflow-y: auto;
-  height: /* your desired height */;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-}
-
-#retailer-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-#retailer-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-#retailer-list::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
 }
