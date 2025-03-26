@@ -423,7 +423,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const activeItem = retailerList.querySelector(`[data-index="${index}"]`);
     if (activeItem) {
       activeItem.classList.add('active');
-      activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Get the container and item positions
+      const container = retailerList;
+      const item = activeItem;
+
+      // Calculate positions
+      const containerHeight = container.clientHeight;
+      const itemHeight = item.clientHeight;
+      const itemTop = item.offsetTop;
+      const scrollTop = container.scrollTop;
+      const scrollBottom = scrollTop + containerHeight;
+
+      // Calculate the ideal scroll position (center the item if possible)
+      let targetScrollTop = itemTop - (containerHeight / 2) + (itemHeight / 2);
+
+      // Constrain the scroll position to valid bounds
+      targetScrollTop = Math.max(0, Math.min(targetScrollTop, container.scrollHeight - containerHeight));
+
+      // Smooth scroll to position
+      container.scrollTo({
+        top: targetScrollTop,
+        behavior: 'smooth'
+      });
     }
   }
 

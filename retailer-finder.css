@@ -422,3 +422,26 @@
 .retailer-item.active {
   background: #e3f2fd;
 }
+
+
+/* For Webkit browsers (Chrome, Safari) */
+#retailer-list {
+  overflow-y: auto;
+  height: /* your desired height */;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+#retailer-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#retailer-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#retailer-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
