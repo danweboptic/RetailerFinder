@@ -1,0 +1,156 @@
+{{ 'retailer-finder.css' | asset_url | stylesheet_tag }}
+  
+{%- liquid
+  # Text settings as liquid variables
+  assign title = "Find a Retailer Near You"
+  assign search_placeholder = "Enter city or postcode"
+  assign search_button_text = "Search"
+  assign location_button_text = "Use My Location"
+  assign list_title = "Retailers Near You"
+  assign found_text = "Found"
+  assign retailers_text = "retailers"
+  assign loading_text = "Loading retailers..."
+  assign no_results_text = "No retailers found in this area."
+  assign error_loading_text = "Error loading retailers. Please try again."
+  assign location_error_text = "Unable to get your location. Please enter a location manually."
+  assign geolocation_not_supported_text = "Geolocation is not supported by your browser. Please enter a location manually."
+  
+  # API endpoint
+  assign api_endpoint = "https://v4.droplet.weboptichosting.co.uk/admin/retailers.php"
+-%}
+
+<div class="retailer-finder">
+  <div class="retailer-finder__header">
+    <div class="page-width">
+      <h1 class="retailer-finder__title">{{ title }}</h1>
+      
+      {% if section.settings.subtitle != blank %}
+        <div class="retailer-finder__subtitle">{{ section.settings.subtitle }}</div>
+      {% endif %}
+      
+      <div class="retailer-finder__search-container">
+        <input type="text" id="retailer-search" class="retailer-finder__search-input" placeholder="{{ search_placeholder }}">
+        <button id="search-btn" class="retailer-finder__button retailer-finder__search-btn">{{ search_button_text }}</button>
+        <button id="use-my-location-btn" class="retailer-finder__button retailer-finder__location-btn">{{ location_button_text }}</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="retailer-finder__content-wrapper">
+    <div class="page-width retailer-finder__content">
+      <div id="retailer-map" class="retailer-finder__map"></div>
+      
+      <div class="retailer-finder__list-container">
+        <h2 class="retailer-finder__list-title">{{ list_title }}</h2>
+        <div id="retailer-count" class="retailer-finder__count">{{ found_text }} <span id="count">0</span> {{ retailers_text }}</div>
+        <div id="retailer-list" class="retailer-finder__list">
+          <div class="retailer-finder__loading">{{ loading_text }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% if section.settings.api_key != blank %}
+  <script src="https://unpkg.com/@googlemaps/markerclusterer@2.5.2/dist/index.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ section.settings.api_key }}&libraries=places" defer></script><!-- Add these scripts before your main JS file -->
+  <script>
+    // Store settings as a global object to access from JS file
+    window.retailerFinderSettings = {
+      apiUrl: '{{ api_endpoint }}',
+      loadingText: '{{ loading_text }}',
+      noResultsText: '{{ no_results_text }}',
+      errorLoadingText: '{{ error_loading_text }}',
+      locationErrorText: '{{ location_error_text }}',
+      geolocationNotSupportedText: '{{ geolocation_not_supported_text }}',
+      defaultLat: {{ section.settings.default_latitude | default: 51.32946017198823 }},
+      defaultLng: {{ section.settings.default_longitude | default: -0.590516176321099 }},
+      distanceUnit: '{{ section.settings.distance_unit }}'
+    };
+  </script>
+  {{ 'retailer-finder.js' | asset_url | script_tag }}
+{% else %}
+  <div class="retailer-finder__error page-width">
+    Please add your Google Maps API Key in the section settings.
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Retailer Finder",
+  "tag": "section",
+  "class": "retailer-finder-section",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "subtitle",
+      "label": "Subtitle"
+    },
+    {
+      "type": "text",
+      "id": "api_key",
+      "label": "Google Maps API Key",
+      "info": "Required for the map to function"
+    },
+    {
+      "type": "text",
+      "id": "default_latitude",
+      "label": "Default Latitude",
+      "default": "51.32946017198823",
+      "info": "Enter decimal latitude (e.g., 51.32946017198823)"
+    },
+    {
+      "type": "text",
+      "id": "default_longitude",
+      "label": "Default Longitude",
+      "default": "-0.590516176321099",
+      "info": "Enter decimal longitude (e.g., -0.590516176321099)"
+    },
+    {
+      "type": "select",
+      "id": "distance_unit",
+      "label": "Distance Unit",
+      "options": [
+        {
+          "value": "miles",
+          "label": "Miles"
+        },
+        {
+          "value": "kilometers",
+          "label": "Kilometers"
+        }
+      ],
+      "default": "miles"
+    },
+    {
+      "type": "header",
+      "content": "Colors and Styling"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#f8f8f8"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Color",
+      "default": "#4CAF50"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Retailer Finder",
+      "category": "Custom Content"
+    }
+  ]
+}
+{% endschema %}
