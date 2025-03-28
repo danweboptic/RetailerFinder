@@ -19,24 +19,39 @@
   assign api_endpoint = "https://v4.droplet.weboptichosting.co.uk/admin/retailers.php"
 -%}
 
-<div class="retailer-finder">
-  <div class="retailer-finder__sidebar">
-    <div class="retailer-finder__search">
-      <input type="text" id="retailer-search" class="retailer-finder__search-input" placeholder="Enter location or postcode">
-      <button id="search-btn" class="retailer-finder__search-btn">Search</button>
-      <button id="use-my-location-btn" class="retailer-finder__location-btn">Use my location</button>
+    <div class="retailer-finder">
+        <!-- Search bar moved to top level -->
+        <div class="retailer-finder__search-container">
+            <div class="retailer-finder__search">
+                <input type="text" 
+                       id="retailer-search" 
+                       class="retailer-finder__search-input" 
+                       placeholder="Enter location or postcode">
+                <button id="search-btn" 
+                        class="retailer-finder__search-btn">
+                    Search
+                </button>
+                <button id="use-my-location-btn" 
+                        class="retailer-finder__location-btn">
+                    Use My Location
+                </button>
+            </div>
+        </div>
+        <!-- Main content area -->
+        <div class="retailer-finder__content">
+            <div class="retailer-finder__sidebar">
+                <div class="retailer-finder__list-container">
+                    <div class="retailer-finder__count">
+                        Found <span id="count">0</span> retailers
+                    </div>
+                    <div id="retailer-list" class="retailer-finder__list">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div id="retailer-map" class="retailer-finder__map"></div>
+        </div>
     </div>
-
-    <div class="retailer-finder__list-container">
-      <div class="retailer-finder__count">
-        Found <span id="count">0</span> retailers
-      </div>
-      <div id="retailer-list" class="retailer-finder__list"></div>
-    </div>
-  </div>
-
-  <div id="retailer-map" class="retailer-finder__map"></div>
-</div>
 
 
 {% if section.settings.api_key != blank %}
