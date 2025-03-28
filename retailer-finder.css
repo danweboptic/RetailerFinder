@@ -1,38 +1,39 @@
 /**
  * Retailer Finder Styles
  * @author: danweboptic
- * @lastModified: 2025-03-26 15:07:21
+ * @lastModified: 2025-03-26 17:04:55
  */
 
 .retailer-finder {
   display: flex;
+  flex-direction: column;
   gap: 20px;
-  height: 600px;
   margin: 20px 0;
 }
 
-/* Sidebar */
-.retailer-finder__sidebar {
-  display: flex;
-  flex-direction: column;
-  width: 400px;
-  min-width: 300px;
+/* Search Container - New Full Width Section */
+.retailer-finder__search-container {
+  width: 100%;
   background: #ffffff;
   border: 1px solid #e1e4e8;
   border-radius: 6px;
-  overflow: hidden;
 }
 
 /* Search Area */
 .retailer-finder__search {
   padding: 15px;
-  border-bottom: 1px solid #e1e4e8;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .retailer-finder__search-input {
-  width: 100%;
+  flex: 1;
+  min-width: 180px;
   padding: 8px 12px;
-  margin-bottom: 10px;
   border: 1px solid #e1e4e8;
   border-radius: 4px;
   font-size: 14px;
@@ -40,9 +41,7 @@
 
 .retailer-finder__search-btn,
 .retailer-finder__location-btn {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 8px;
+  padding: 8px 15px;
   border: none;
   border-radius: 4px;
   background: #4285F4;
@@ -50,6 +49,8 @@
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .retailer-finder__location-btn {
@@ -62,6 +63,25 @@
 
 .retailer-finder__location-btn:hover {
   background: #2E8B47;
+}
+
+/* Main Content Area */
+.retailer-finder__content {
+  display: flex;
+  gap: 20px;
+  height: 600px;
+}
+
+/* Sidebar */
+.retailer-finder__sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  min-width: 300px;
+  background: #ffffff;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 /* List Container */
@@ -202,7 +222,7 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-  .retailer-finder {
+  .retailer-finder__content {
     flex-direction: column;
     height: auto;
   }
@@ -215,4 +235,55 @@
   .retailer-finder__map {
     height: 400px;
   }
+
+  .retailer-finder__search {
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
+  .retailer-finder__search-input {
+    flex: 1 1 100%;
+    margin-bottom: 10px;
+  }
+
+  .retailer-finder__search-btn,
+  .retailer-finder__location-btn {
+    flex: 1;
+  }
+}
+
+/* Search Input Autocomplete Styles */
+.pac-container {
+  border-radius: 4px;
+  margin-top: 5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e1e4e8;
+}
+
+.pac-item {
+  padding: 8px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pac-item:hover {
+  background-color: #f6f8fa;
+}
+
+/* Scrollbar Styles */
+.retailer-finder__list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.retailer-finder__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.retailer-finder__list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.retailer-finder__list::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
 }
