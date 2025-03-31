@@ -23,15 +23,15 @@
         <!-- Search bar moved to top level -->
         <div class="retailer-finder__search-container">
             <div class="retailer-finder__search">
-                <input type="text" 
-                       id="retailer-search" 
-                       class="retailer-finder__search-input" 
+                <input type="text"
+                       id="retailer-search"
+                       class="retailer-finder__search-input"
                        placeholder="Enter location or postcode">
-                <button id="search-btn" 
+                <button id="search-btn"
                         class="retailer-finder__search-btn">
                     Search
                 </button>
-                <button id="use-my-location-btn" 
+                <button id="use-my-location-btn"
                         class="retailer-finder__location-btn">
                     Use My Location
                 </button>
@@ -42,7 +42,7 @@
             <div class="retailer-finder__sidebar">
                 <div class="retailer-finder__list-container">
                     <div class="retailer-finder__count">
-                        Found <span id="count">0</span> retailers
+                        <span id="count">0</span>
                     </div>
                     <div id="retailer-list" class="retailer-finder__list">
                         <!-- Results will be populated here -->
@@ -67,6 +67,7 @@
     };
   </script>
   {{ 'retailer-finder.js' | asset_url | script_tag }}
+  <!-- {{ 'map-worker.js' | asset_url | script_tag }} -->
 {% else %}
   <div class="retailer-finder__error page-width">
     Please add your Google Maps API Key in the section settings.
